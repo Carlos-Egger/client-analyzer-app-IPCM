@@ -1,0 +1,49 @@
+# Ambiente virtual
+venv/
+.venv/
+
+# Cache e arquivos temporários do Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Configs do Jupyter e IPython
+.ipynb_checkpoints/
+.profile
+.python_history
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Configs de IDEs
+.vscode/
+.idea/
+*.swp
+
+# Arquivos de Streamlit
+.streamlit/config.toml
+.streamlit/credentials.toml
+
+# Modelos e artefatos (se forem grandes ou apenas para produção)
+*.pkl
+*.joblib
+
+# Arquivos CSV grandes ou temporários
+data/*.csv
+*.csv
+
+# Arquivos de ambiente
+.env
+.env.*
+
+# Arquivos de build (opcional, se for empacotar)
+build/
+dist/
+*.egg-info/
