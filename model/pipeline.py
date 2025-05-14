@@ -59,22 +59,24 @@ def drop_irrelevant_coluns_and_rows(df: pd.DataFrame) -> pd.DataFrame:
     columns_to_drop=['NomPatologista', 'NomMedico', 'Ano', 'Tat', 'VlrBruto', "VlrRecebido", "DtaRecebido", "NomLocalOrigem", "DtaSolicitacao", "DtaFinalizacao"]
     df = df.drop(columns=columns_to_drop)
     conv_to_drop = ['CORTESIA', 'FUSEX', 'ONG ZOE', 'UNACON TUCURUI', 'PARTICULAR EXTERNO']
-    df = df[~df['NomFontePagadora'].isin(conv_to_drop)]
+    df = df[~df['NomFontePagadora'].isin(conv_to_drop)].copy()
     return df
 
 
 def treat_outliers_nan(df: pd.DataFrame) -> pd.DataFrame:
     df['QtdLam'].dropna(inplace=True)
     df['VlrLiquido'].dropna(inplace=True)
-    df = df[df['QtdLam'] > 0]
-    df = df[df['QtdLam'] < 60]
-    df = df[df['VlrLiquido'] > 0]
+    df = df[
+        (df['QtdLam'] > 0) &
+        (df['QtdLam'] < 60) &
+        (df['VlrLiquido'] > 0)
+    ].copy()
     return df
 
 
 def treat_exames(df: pd.DataFrame) -> pd.DataFrame:
     exames = ["BIOPSIA SIMPLES","BIOPSIA GASTRICA", "PELE", "CITOPATOLOGIA", 'IMUNO-HISTOQUIMICA', 'PECA CIRURGICA COMPLEXA', 'PECA CIRURGICA SIMPLES']
-    df = df[df['NomExame'] != "LAMINA AVULSA"]
+    df = df[df['NomExame'] != "LAMINA AVULSA"].copy()
     df['ExameSeparado'] = df.apply(lambda row: row['NomExame'] if row['NomExameTipo'] == 'ANATOMO PATOLOGICO' else row['NomExameTipo'], axis=1)
     df = df[df['ExameSeparado'].isin(exames)]
     dummies = pd.get_dummies(df['ExameSeparado']).astype(int)
@@ -114,7 +116,7 @@ def aggregate_by_period(df: pd.DataFrame) -> pd.DataFrame:
 ).reset_index()
     
     df_agg['anatomo'] = df_agg[['BiopsiaGastrica', 'BiopsiaSimples', 'PecaComplexa', 'PecaSimples', 'Pele']].sum(axis=1)
-    df_agg['ConvercaoImuno'] = (df_agg['Imuno']/df_agg['anatomo'])
+    df_agg['ConvercaoImuno'] = (df_agg['Imuno']/df_agg['anatomo']).clip(upper=1)
     df_agg = df_agg.drop(columns='anatomo')
 
     return df_agg
@@ -125,13 +127,6 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     df = treat_outliers_nan(df)
     df = gen_calculate_columns(df)
     df = treat_exames(df)
-    #df = aggregate_by_period(df)
+    df = aggregate_by_period(df)
 
     return df
-
-
-df = pd.read_csv(r"C:\Users\usr\OneDrive - instituto de patologia cirúrgica e molecular\BASES\BASE_INDICADORES.csv", sep=';')
-
-df = preprocess_data(df)
-
-df.to_csv('testar.csv', index=False)
