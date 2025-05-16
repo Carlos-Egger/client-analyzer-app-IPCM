@@ -101,9 +101,9 @@ def aggregate_by_period(df: pd.DataFrame) -> pd.DataFrame:
     df_agg = df.groupby(['Mes', 'NomFontePagadora']).agg(
     VlrLiquidoTotal=('VlrLiquido', 'sum'),
     VlrPonderadoTotal=('VlrPonderado', 'sum'),
+    laminas_ponderado=('LamPricePonderado', 'sum'),
     laminas=('QtdLam', 'sum'),
     ticket_medio=('VlrLiquido', 'mean'),
-    ticket_medio_laminas=('Lam_Price', 'mean'),
     ticket_medio_laminas_ponderado=('LamPricePonderado', 'mean'),
     QtdReq=('VlrLiquido', 'count'),  # ou usar qualquer outra coluna da venda
     BiopsiaGastrica=('BIOPSIA GASTRICA', 'sum'),
@@ -115,15 +115,13 @@ def aggregate_by_period(df: pd.DataFrame) -> pd.DataFrame:
     Pele=('PELE', 'sum'),
 ).reset_index()
     
-    df_agg['anatomo'] = df_agg[['BiopsiaGastrica', 'BiopsiaSimples', 'PecaComplexa', 'PecaSimples', 'Pele']].sum(axis=1)
-    df_agg['ConvercaoImuno'] = (df_agg['Imuno']/df_agg['anatomo']).clip(upper=1)
-    df_agg = df_agg.drop(columns='anatomo')
+    df_agg = df_agg.drop(columns={'BiopsiaGastrica', 'BiopsiaSimples', 'PecaComplexa', 'PecaSimples', 'Pele', 'Citologia', 'Imuno'})
 
     return df_agg
 
 
 def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
-    df = drop_irrelevant_coluns_and_rows(df)
+    df = drop_irrelevant_coluns_and_rows(df) 
     df = treat_outliers_nan(df)
     df = gen_calculate_columns(df)
     df = treat_exames(df)

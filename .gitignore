@@ -47,3 +47,6 @@ data/*.csv
 build/
 dist/
 *.egg-info/
+
+# Arquivos de teste
+teste_modelos.ipynb
